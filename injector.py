@@ -30,11 +30,3 @@ class Dependencies(object):
         The factory will be called with the dependencies (if any listed) as arguments.
         """
         self._add_item('factory', name, factory, dependencies)
-
-    def register_service(self, name, service, dependencies=None):
-        """ Binds a service to a name. The injector will call the service function
-        each time a name is used.
-
-        The service will be called with the dependencies (if any listed) as arguments.
-        """
-        self._add_item('service', name, service, dependencies)
