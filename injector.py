@@ -16,6 +16,12 @@ class CircularDependencyException(InjectorException):
     pass
 
 def has_missing_dependencies(dependency_graph):
+    """ Checks to see if the graph contains any references to nodes that don't exist.
+
+    dependency_graph - a graph of the form {name: [children names]}
+
+    Returns True if there are missing dependencies.
+    """
     for dependencies in dependency_graph.values():
         for dependency in dependencies:
             if dependency not in dependency_graph:
@@ -23,6 +29,12 @@ def has_missing_dependencies(dependency_graph):
     return False
 
 def has_circular_dependencies(dependency_graph):
+    """ Checks to see if the graph contains any cycles.
+
+    dependency_graph - a graph of the form {name: [children names]}
+
+    Returns True if there is a cycle.
+    """
     dep_counts = {
         name: len(dependencies)
         for name, dependencies in dependency_graph.items()
@@ -50,6 +62,7 @@ def has_circular_dependencies(dependency_graph):
     return num_removed < len(dependency_graph)
 
 class Dependencies(object):
+    """ A factory for setting up and building an Injector instance.  """
     def __init__(self):
         self._factories = dict()
 
@@ -57,8 +70,7 @@ class Dependencies(object):
         self._names_used.add(name)
 
     def register_value(self, name, value):
-        """ Bind a value to a name. The Injector will always return the value as-is.
-        """
+        """ Bind a value to a name. The Injector will always return the value as-is.  """
         self.register_factory(name, lambda: value)
 
     def register_factory(self, name, factory, dependencies=None):
@@ -81,6 +93,10 @@ class Dependencies(object):
         }
 
     def build_injector(self):
+        """ Builds an injector instance that can be used to inject dependencies.
+
+        Also checks for common errors (missing dependencies and circular dependencies).
+        """
         graph = self._make_dependency_graph()
         if has_missing_dependencies(graph):
             raise MissingDependencyException()
@@ -90,10 +106,20 @@ class Dependencies(object):
 
 class Injector(object):
     def __init__(self, factories):
+        """ Create an Injector.
+
+        The prefered way to create an Injector is with `Dependencies.build_injector()`.
+        """
         self._factories = factories
         self._value_cache = {}
 
     def get_dependency(self, name):
+        """ Get the value of a dependency.
+
+        name - The name of the requested dependency
+
+        Returns the value of the dependency
+        """
         if name not in self._factories:
             raise MissingDependencyException("Missing dependency name: {}".format(name))
         (factory, dependencies) = self._factories[name]
