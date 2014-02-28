@@ -38,11 +38,11 @@ class DependenciesTest(unittest.TestCase):
         )
         inj = self.dependencies.build_injector()
 
-        self.assertTrue(isinstance(inj, injector.Injector))
+        self.assertEqual(inj.get_dependency('x1'), 1)
 
 class InjectorTest(unittest.TestCase):
     def setUp(self):
-        self.injector = injector.Injector()
+        self.injector = injector.Injector({})
 
 if __name__ == '__main__':
     unittest.main()

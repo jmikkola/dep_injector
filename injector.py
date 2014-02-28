@@ -7,6 +7,9 @@ class BadNameException(InjectorException):
 class DuplicateNameException(InjectorException):
     pass
 
+class MissingNameException(InjectorException):
+    pass
+
 class Dependencies(object):
     def __init__(self):
         self._factories = dict()
@@ -33,8 +36,16 @@ class Dependencies(object):
         self._factories[name] = (factory, dependencies)
 
     def build_injector(self):
-        return Injector()
+        return Injector(self._factories)
 
 class Injector(object):
-    def __init__(self):
-        pass
+    def __init__(self, factories):
+        self._factories = factories
+        self._value_cache = {}
+
+    def get_dependency(self, name):
+        if name not in self._factories:
+            raise MissingNameException("Missing dependency name: {}".format(name))
+        (factory, dependencies) = self._factories[name]
+        args = []
+        return factory(*args)
