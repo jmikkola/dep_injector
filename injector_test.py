@@ -52,7 +52,23 @@ class DependenciesTest(unittest.TestCase):
 
 class InjectorTest(unittest.TestCase):
     def setUp(self):
-        self.injector = injector.Injector({})
+        self.injector = injector.Injector({
+            'value1': (lambda: 1, None),
+            'value2': (lambda: 'some string', None),
+            'factory1': (lambda: 'factory 1 result', None),
+            'factory2': (lambda val1: 'value1 is {}'.format(val1), ['value1']),
+        })
+
+    def test_has_dependency(self):
+        self.assertTrue(self.injector.has_dependency('value1'))
+        self.assertFalse(self.injector.has_dependency('xyz'))
+
+    def test_get_value(self):
+        self.assertEqual(1, self.injector.get_dependency('value1'))
+        self.assertEqual('some string', self.injector.get_dependency('value2'))
+
+    def test_get_factory(self):
+        self.assertEqual('factory 1 result', self.injector.get_dependency('factory1'))
 
 if __name__ == '__main__':
     unittest.main()
