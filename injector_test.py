@@ -30,5 +30,19 @@ class DependenciesTest(unittest.TestCase):
         with self.assertRaises(injector.DuplicateNameException):
             self.dependencies.register_factory('x', lambda: 2)
 
+    def test_builds_injector(self):
+        self.dependencies.register_value('x1', 1)
+        self.dependencies.register_value('x2', 2)
+        self.dependencies.register_factory(
+            'f1', lambda x1: x1 * 5, dependencies=['x1']
+        )
+        inj = self.dependencies.build_injector()
+
+        self.assertTrue(isinstance(inj, injector.Injector))
+
+class InjectorTest(unittest.TestCase):
+    def setUp(self):
+        self.injector = injector.Injector()
+
 if __name__ == '__main__':
     unittest.main()

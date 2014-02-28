@@ -30,3 +30,10 @@ class Dependencies(object):
         The factory will be called with the dependencies (if any listed) as arguments.
         """
         self._add_item('factory', name, factory, dependencies)
+
+    def build_injector(self):
+        return Injector()
+
+class Injector(object):
+    def __init__(self):
+        pass
