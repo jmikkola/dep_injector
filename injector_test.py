@@ -70,5 +70,8 @@ class InjectorTest(unittest.TestCase):
     def test_get_factory(self):
         self.assertEqual('factory 1 result', self.injector.get_dependency('factory1'))
 
+    def test_get_factory_with_dependencies(self):
+        self.assertEqual('value1 is 1', self.injector.get_dependency('factory2'))
+
 if __name__ == '__main__':
     unittest.main()
