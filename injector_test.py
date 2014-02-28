@@ -26,5 +26,10 @@ class InjectorTest(unittest.TestCase):
         with self.assertRaises(injector.BadNameException):
             self.injector.register_value(object(), 123)
 
+    def test_disallows_duplicate_names(self):
+        self.injector.register_service('x', lambda: 1)
+        with self.assertRaises(injector.DuplicateNameException):
+            self.injector.register_factory('x', lambda: 2)
+
 if __name__ == '__main__':
     unittest.main()
