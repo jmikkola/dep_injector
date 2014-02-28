@@ -1,3 +1,5 @@
+import collections
+
 class InjectorException(Exception):
     pass
 
@@ -10,12 +12,42 @@ class DuplicateNameException(InjectorException):
 class MissingDependencyException(InjectorException):
     pass
 
+class CircularDependencyException(InjectorException):
+    pass
+
 def has_missing_dependencies(dependency_graph):
     for dependencies in dependency_graph.values():
         for dependency in dependencies:
             if dependency not in dependency_graph:
                 return True
     return False
+
+def has_circular_dependencies(dependency_graph):
+    dep_counts = {
+        name: len(dependencies)
+        for name, dependencies in dependency_graph.items()
+    }
+
+    depends_on = collections.defaultdict(set)
+    for name, dependencies in dependency_graph.items():
+        for dependency in dependencies:
+            depends_on[dependency].add(name)
+
+    deps_met = collections.deque(
+        name for name, dependencies in dependency_graph.items()
+        if len(dependencies) == 0
+    )
+
+    num_removed = 0
+    while deps_met:
+        num_removed += 1
+        done = deps_met.pop()
+        for name in depends_on[done]:
+            dep_counts[name] -= 1
+            if dep_counts[name] == 0:
+                deps_met.add(name)
+
+    return num_removed < len(dependency_graph)
 
 class Dependencies(object):
     def __init__(self):
@@ -52,6 +84,8 @@ class Dependencies(object):
         graph = self._make_dependency_graph()
         if has_missing_dependencies(graph):
             raise MissingDependencyException()
+        if has_circular_dependencies(graph):
+            raise CircularDependencyException()
         return Injector(self._factories)
 
 class Injector(object):

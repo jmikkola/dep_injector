@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 
@@ -40,6 +40,14 @@ class DependenciesTest(unittest.TestCase):
         self.dependencies.register_factory('f1', lambda f2: 1, dependencies=['f2'])
 
         with self.assertRaises(injector.MissingDependencyException):
+            self.dependencies.build_injector()
+
+    def test_catches_circular_dependency(self):
+        self.dependencies.register_factory('f1', lambda f2: 1, dependencies=['f2'])
+        self.dependencies.register_factory('f2', lambda f3: 2, dependencies=['f3'])
+        self.dependencies.register_factory('f3', lambda f1: 3, dependencies=['f1'])
+
+        with self.assertRaises(injector.CircularDependencyException):
             self.dependencies.build_injector()
 
 class InjectorTest(unittest.TestCase):
