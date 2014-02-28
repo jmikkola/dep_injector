@@ -4,9 +4,9 @@ import unittest
 
 import injector
 
-class InjectorTest(unittest.TestCase):
+class DependenciesTest(unittest.TestCase):
     def setUp(self):
-        self.injector = injector.Injector()
+        self.injector = injector.Dependencies()
 
     def test_can_add_things(self):
         self.injector.register_value('my value', 123)
@@ -14,7 +14,6 @@ class InjectorTest(unittest.TestCase):
         self.injector.register_service('my service', lambda: 1)
 
     def test_accepts_dependency_lists(self):
-        self.injector.register_value('my value', 123, dependencies=['my factory'])
         self.injector.register_factory('my factory', lambda: 1, dependencies=['my value'])
         self.injector.register_service('my service', lambda: 1, dependencies=['my value'])
 
