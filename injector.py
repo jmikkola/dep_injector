@@ -127,9 +127,7 @@ class Injector(object):
         if not self.has_dependency(name):
             raise MissingDependencyException("Missing dependency name: {}".format(name))
         if name not in self._value_cache:
-            (factory, dependencies) = self._factories[name]
-            args = map(self.get_dependency, dependencies) if dependencies else []
-            self._value_cache[name] = factory(*args)
+            self._value_cache[name] = self.inject(*self._factories[name])
         return self._value_cache[name]
 
     def inject(self, fn, dependencies):
