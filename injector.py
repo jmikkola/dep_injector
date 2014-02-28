@@ -113,6 +113,10 @@ class Injector(object):
         self._factories = factories
         self._value_cache = {}
 
+    def has_dependency(self, name):
+        """ Check if the Injector has a dependency """
+        return name in self._factories
+
     def get_dependency(self, name):
         """ Get the value of a dependency.
 
@@ -120,7 +124,7 @@ class Injector(object):
 
         Returns the value of the dependency
         """
-        if name not in self._factories:
+        if not self.has_dependency(name):
             raise MissingDependencyException("Missing dependency name: {}".format(name))
         (factory, dependencies) = self._factories[name]
         args = []
