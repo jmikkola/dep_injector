@@ -7,8 +7,15 @@ class BadNameException(InjectorException):
 class DuplicateNameException(InjectorException):
     pass
 
-class MissingNameException(InjectorException):
+class MissingDependencyException(InjectorException):
     pass
+
+def has_missing_dependencies(dependency_graph):
+    for dependencies in dependency_graph.values():
+        for dependency in dependencies:
+            if dependency not in dependency_graph:
+                return True
+    return False
 
 class Dependencies(object):
     def __init__(self):
@@ -35,7 +42,16 @@ class Dependencies(object):
 
         self._factories[name] = (factory, dependencies)
 
+    def _make_dependency_graph(self):
+        return {
+            name: dependencies or []
+            for name, (_, dependencies) in self._factories.items()
+        }
+
     def build_injector(self):
+        graph = self._make_dependency_graph()
+        if has_missing_dependencies(graph):
+            raise MissingDependencyException()
         return Injector(self._factories)
 
 class Injector(object):
@@ -45,7 +61,7 @@ class Injector(object):
 
     def get_dependency(self, name):
         if name not in self._factories:
-            raise MissingNameException("Missing dependency name: {}".format(name))
+            raise MissingDependencyException("Missing dependency name: {}".format(name))
         (factory, dependencies) = self._factories[name]
         args = []
         return factory(*args)

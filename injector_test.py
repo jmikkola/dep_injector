@@ -32,13 +32,15 @@ class DependenciesTest(unittest.TestCase):
 
     def test_builds_injector(self):
         self.dependencies.register_value('x1', 1)
-        self.dependencies.register_value('x2', 2)
-        self.dependencies.register_factory(
-            'f1', lambda x1: x1 * 5, dependencies=['x1']
-        )
         inj = self.dependencies.build_injector()
 
         self.assertEqual(inj.get_dependency('x1'), 1)
+
+    def test_catches_missing_dependency(self):
+        self.dependencies.register_factory('f1', lambda f2: 1, dependencies=['f2'])
+
+        with self.assertRaises(injector.MissingDependencyException):
+            self.dependencies.build_injector()
 
 class InjectorTest(unittest.TestCase):
     def setUp(self):
