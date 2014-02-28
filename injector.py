@@ -131,3 +131,14 @@ class Injector(object):
             args = map(self.get_dependency, dependencies) if dependencies else []
             self._value_cache[name] = factory(*args)
         return self._value_cache[name]
+
+    def inject(self, fn, dependencies):
+        """ Calls the function with the value of the listed dependencies
+
+        fn           - function that will be called
+        dependencies - list of names of dependencies to inject
+
+        Returns the result of calling the function.
+        """
+        args = map(self.get_dependency, dependencies) if dependencies else []
+        return fn(*args)
