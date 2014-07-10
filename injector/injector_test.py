@@ -2,6 +2,7 @@
 
 import unittest
 
+from injector import exceptions
 from injector.injector import Injector
 
 class InjectorTest(unittest.TestCase):
@@ -26,6 +27,10 @@ class InjectorTest(unittest.TestCase):
 
     def test_get_factory_with_dependencies(self):
         self.assertEqual('value1 is 1', self.injector.get_dependency('factory2'))
+
+    def test_get_missing_dependency(self):
+        with self.assertRaises(exceptions.MissingDependencyException):
+            self.injector.get_dependency('missing!')
 
     def test_inject(self):
         def test_fn(a, b):

@@ -1,3 +1,5 @@
+from injector.exceptions import MissingDependencyException
+
 class Injector(object):
     def __init__(self, factories):
         """ Create an Injector.
