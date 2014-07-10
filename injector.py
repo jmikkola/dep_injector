@@ -57,7 +57,7 @@ def has_circular_dependencies(dependency_graph):
         for name in depends_on[done]:
             dep_counts[name] -= 1
             if dep_counts[name] == 0:
-                deps_met.add(name)
+                deps_met.append(name)
 
     return num_removed < len(dependency_graph)
 
