@@ -54,3 +54,14 @@ def uses_computed_value(computed_value):
 
 print(inj.inject(uses_computed_value, ['computed_value']))
 ```
+
+## Development
+
+Run this:
+
+```bash
+virtualenv -p python3 env
+source env/bin/activate
+pip install -r dev-requirements.txt
+nosetests .
+```

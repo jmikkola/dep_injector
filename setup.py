@@ -9,4 +9,5 @@ setuptools.setup(
     author='Jeremy Mikkola',
     description='A dependency injector backend',
     install_requires=[],
+    test_suite='nose.collector',
 )
