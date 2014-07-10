@@ -9,9 +9,6 @@ def depends_on(dependencies):
         return Dependant(fn, dependencies)
     return dependant_wrapper
 
-def merge_dictionaries(a, b):
-    return dict(itertools.chain(a.items(), b.items()))
-
 class DependencyGraph:
     def __init__(self, graph):
         self._graph = graph
