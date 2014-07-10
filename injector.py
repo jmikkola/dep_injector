@@ -15,51 +15,67 @@ class MissingDependencyException(InjectorException):
 class CircularDependencyException(InjectorException):
     pass
 
-def has_missing_dependencies(dependency_graph):
-    """ Checks to see if the graph contains any references to nodes that don't exist.
+class Dependant(collections.namedtuple('Dependant', 'fn dependencies')):
+    def __call__(self, *args, **kwargs):
+        return self.fn(*args, **kwargs)
 
-    dependency_graph - a graph of the form {name: [children names]}
+def depends_on(dependencies):
+    def dependant_wrapper(fn):
+        return Dependant(fn, dependencies)
+    return dependant_wrapper
 
-    Returns True if there are missing dependencies.
-    """
-    for dependencies in dependency_graph.values():
-        for dependency in dependencies:
-            if dependency not in dependency_graph:
-                return True
-    return False
+def merge_dictionaries(a, b):
+    return dict(itertools.chain(a.items(), b.items()))
 
-def has_circular_dependencies(dependency_graph):
-    """ Checks to see if the graph contains any cycles.
+class DependencyGraph:
+    def __init__(self, graph):
+        self._graph = graph
 
-    dependency_graph - a graph of the form {name: [children names]}
+    def has_missing_dependencies(self):
+        """ Checks to see if the graph contains any references to nodes that don't exist.
 
-    Returns True if there is a cycle.
-    """
-    dep_counts = {
-        name: len(dependencies)
-        for name, dependencies in dependency_graph.items()
-    }
+        dependency_graph - a graph of the form {name: [children names]}
 
-    depends_on = collections.defaultdict(set)
-    for name, dependencies in dependency_graph.items():
-        for dependency in dependencies:
-            depends_on[dependency].add(name)
+        Returns True if there are missing dependencies.
+        """
+        for dependencies in self._graph.values():
+            for dependency in dependencies:
+                if dependency not in self._graph:
+                    return True
+        return False
 
-    deps_met = collections.deque(
-        name for name, dependencies in dependency_graph.items()
-        if len(dependencies) == 0
-    )
+    def has_circular_dependencies(self):
+        """ Checks to see if the graph contains any cycles.
 
-    num_removed = 0
-    while deps_met:
-        num_removed += 1
-        done = deps_met.pop()
-        for name in depends_on[done]:
-            dep_counts[name] -= 1
-            if dep_counts[name] == 0:
-                deps_met.append(name)
+        dependency_graph - a graph of the form {name: [children names]}
 
-    return num_removed < len(dependency_graph)
+        Returns True if there is a cycle.
+        """
+        dep_counts = {
+            name: len(dependencies)
+            for name, dependencies in self._graph.items()
+        }
+
+        depends_on = collections.defaultdict(set)
+        for name, dependencies in self._graph.items():
+            for dependency in dependencies:
+                depends_on[dependency].add(name)
+
+        deps_met = collections.deque(
+            name for name, dependencies in self._graph.items()
+            if len(dependencies) == 0
+        )
+
+        num_removed = 0
+        while deps_met:
+            num_removed += 1
+            done = deps_met.pop()
+            for name in depends_on[done]:
+                dep_counts[name] -= 1
+                if dep_counts[name] == 0:
+                    deps_met.append(name)
+
+        return num_removed < len(self._graph)
 
 class Dependencies(object):
     """ A factory for setting up and building an Injector instance.  """
@@ -79,29 +95,34 @@ class Dependencies(object):
 
         The factory will be called with the dependencies (if any listed) as arguments.
         """
+        self._check_name(name)
+        self._factories[name] = (factory, dependencies)
+
+    def _check_name(self, name):
         if not name or not isinstance(name, str):
             raise BadNameException("Bad name: {!r}".format(name))
         if name in self._factories:
             raise DuplicateNameException("Duplicate name: {}".format(name))
 
-        self._factories[name] = (factory, dependencies)
-
     def _make_dependency_graph(self):
-        return {
+        return DependencyGraph({
             name: dependencies or []
             for name, (_, dependencies) in self._factories.items()
-        }
+        })
+
+    def _check_injector_state(self):
+        dependency_graph = self._make_dependency_graph()
+        if dependency_graph.has_missing_dependencies():
+            raise MissingDependencyException()
+        if dependency_graph.has_circular_dependencies():
+            raise CircularDependencyException()
 
     def build_injector(self):
         """ Builds an injector instance that can be used to inject dependencies.
 
         Also checks for common errors (missing dependencies and circular dependencies).
         """
-        graph = self._make_dependency_graph()
-        if has_missing_dependencies(graph):
-            raise MissingDependencyException()
-        if has_circular_dependencies(graph):
-            raise CircularDependencyException()
+        self._check_injector_state()
         return Injector(self._factories)
 
 class Injector(object):
