@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from injector.exceptions import MissingDependencyException
 
 class Injector(object):

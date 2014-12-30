@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+from __future__ import absolute_import
 import unittest
+
 from injector.graph import DependencyGraph
 
 class MissingDependenciesTest(unittest.TestCase):

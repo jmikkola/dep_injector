@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from injector import exceptions, graph, injector
 
 class Dependencies(object):
