@@ -35,12 +35,12 @@ class Injector(object):
             self._value_cache[name] = self.inject(*self._factories[name])
         return self._value_cache[name]
 
-    def inject(self, fn, dependencies):
+    def inject(self, function, dependencies):
         """ Calls the function with the value of the listed dependencies.
 
-        :param fn: The function that will be called
+        :param function: The function that will be called
         :param dependencies: A list of names of dependencies to inject into the function
         :return: The result of calling the function.
         """
-        args = map(self.get_dependency, dependencies) if dependencies else []
-        return fn(*args)
+        args = [self.get_dependency(d) for d in dependencies] if dependencies else []
+        return function(*args) #pylint: disable=W0142

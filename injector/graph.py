@@ -4,9 +4,10 @@ class DependencyGraph(object):
     """ A generic dependency graph, useful for checking some properties """
 
     def __init__(self, graph):
-        """ Creates a new DependencyGraph
+        """ Creates a new DependencyGraph.
 
-        :param graph: A dict mapping a dependency name to a list of zero or more things it depends on
+        :param graph: A dict mapping a dependency name to a list of zero or more
+                      things it depends on.
         """
         self._graph = graph
 

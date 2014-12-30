@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#pylint: disable=C0103
 
 from __future__ import absolute_import
 import unittest
@@ -12,7 +13,7 @@ class InjectorTest(unittest.TestCase):
             'value1': (lambda: 1, None),
             'value2': (lambda: 'some string', None),
             'factory1': (lambda: 'factory 1 result', None),
-            'factory2': (lambda val1: 'value1 is {}'.format(val1), ['value1']),
+            'factory2': ('value1 is {}'.format, ['value1']),
         })
 
     def test_has_dependency(self):
@@ -34,8 +35,8 @@ class InjectorTest(unittest.TestCase):
             self.injector.get_dependency('missing!')
 
     def test_inject(self):
-        def test_fn(a, b):
-            return '{} {}'.format(a, b)
+        def test_fn(val_a, val_b):
+            return '{} {}'.format(val_a, val_b)
         result = self.injector.inject(test_fn, ['value1', 'value2'])
         self.assertEqual('1 some string', result)
 
