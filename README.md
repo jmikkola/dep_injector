@@ -1,5 +1,7 @@
 # Dep injector
 
+![](https://api.travis-ci.org/jmikkola/dep_injector.svg)
+
 Allows expressing dependency graphs and getting dependencies from them.
 
 This is potentially useful for dependency injection.
