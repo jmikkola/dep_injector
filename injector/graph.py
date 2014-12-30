@@ -1,24 +1,19 @@
 import collections
 
-class Dependant(collections.namedtuple('Dependant', 'fn dependencies')):
-    def __call__(self, *args, **kwargs):
-        return self.fn(*args, **kwargs)
-
-def depends_on(dependencies):
-    def dependant_wrapper(fn):
-        return Dependant(fn, dependencies)
-    return dependant_wrapper
-
 class DependencyGraph:
+    """ A generic dependency graph, useful for checking some properties """
+
     def __init__(self, graph):
+        """ Creates a new DependencyGraph
+
+        :param graph: A dict mapping a dependency name to a list of zero or more things it depends on
+        """
         self._graph = graph
 
     def has_missing_dependencies(self):
         """ Checks to see if the graph contains any references to nodes that don't exist.
 
-        dependency_graph - a graph of the form {name: [children names]}
-
-        Returns True if there are missing dependencies.
+        :return: True if there are missing dependencies.
         """
         for dependencies in self._graph.values():
             for dependency in dependencies:
@@ -29,9 +24,7 @@ class DependencyGraph:
     def has_circular_dependencies(self):
         """ Checks to see if the graph contains any cycles.
 
-        dependency_graph - a graph of the form {name: [children names]}
-
-        Returns True if there is a cycle.
+        :return: True if there is a cycle.
         """
         dep_counts = {
             name: len(dependencies)

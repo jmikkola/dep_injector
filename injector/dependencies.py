@@ -1,19 +1,18 @@
-from injector import (
-    exceptions,
-    graph,
-    injector,
-)
+from injector import exceptions, graph, injector
 
 class Dependencies(object):
     """ A factory for setting up and building an Injector instance.  """
+
     def __init__(self):
         self._factories = dict()
 
-    def _add_item(self, kind, name, value, dependencies):
-        self._names_used.add(name)
-
     def register_value(self, name, value):
-        """ Bind a value to a name. The Injector will always return the value as-is.  """
+        """
+        Bind a value to a name. The Injector will always return the value as-is.
+
+        :param name: A string naming the dependency (e.g. 'db-host-name')
+        :param value: Any value (e.g. 'master.postgres.internal')
+        """
         self.register_factory(name, lambda: value)
 
     def register_factory(self, name, factory, dependencies=None):
@@ -21,6 +20,10 @@ class Dependencies(object):
         (if the name is ever used), and always return the value that the factory returns.
 
         The factory will be called with the dependencies (if any listed) as arguments.
+
+        :param name: A string naming the dependency (e.g. 'db-connection')
+        :param factory: A factory function to create the dependency
+        :param dependencies: (optional) A list of dependencies of the factory function
         """
         self._check_name(name)
         self._factories[name] = (factory, dependencies)
@@ -48,6 +51,8 @@ class Dependencies(object):
         """ Builds an injector instance that can be used to inject dependencies.
 
         Also checks for common errors (missing dependencies and circular dependencies).
+
+        :return: Injector
         """
         self._check_injector_state()
         return injector.Injector(self._factories)

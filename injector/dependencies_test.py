@@ -2,13 +2,11 @@
 
 import unittest
 
-from injector.exceptions import (
-    BadNameException,
-    CircularDependencyException,
-    DuplicateNameException,
-    MissingDependencyException,
-)
 from injector.dependencies import Dependencies
+from injector.exceptions import BadNameException
+from injector.exceptions import CircularDependencyException
+from injector.exceptions import DuplicateNameException
+from injector.exceptions import MissingDependencyException
 
 class DependenciesTest(unittest.TestCase):
     def setUp(self):
