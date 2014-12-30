@@ -1,6 +1,6 @@
 import collections
 
-class DependencyGraph:
+class DependencyGraph(object):
     """ A generic dependency graph, useful for checking some properties """
 
     def __init__(self, graph):
